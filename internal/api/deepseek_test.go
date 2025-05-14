@@ -3,27 +3,24 @@ package api
 import (
 	"os"
 	"testing"
-
-	"github.com/ODearEvanHansen/deepfish/internal/config"
 )
 
-func TestDeepSeekClient_GenerateContent(t *testing.T) {
+func TestDeepSeekClient_GenerateChineseEmail(t *testing.T) {
 	// Skip test if API key is not set
 	apiKey := os.Getenv("DEEPSEEK_API_KEY")
 	if apiKey == "" {
 		t.Skip("DEEPSEEK_API_KEY environment variable not set, skipping test")
 	}
 
+	// Set the API key in the environment for the config package
+	os.Setenv("DEEPSEEK_API_KEY", apiKey)
+	
 	// Create a new client
-	cfg := &config.Config{
-		DeepSeekAPIKey: apiKey,
-		DeepSeekModel:  "deepseek-chat", // Use default model for testing
-	}
-	client := NewDeepSeekClient(cfg)
+	client := NewDeepSeekClient()
 
 	// Test generating content
 	prompt := "Generate a short test message in Chinese (less than 50 characters)"
-	content, err := client.GenerateContent(prompt)
+	content, err := client.GenerateChineseEmail(prompt)
 	if err != nil {
 		t.Fatalf("Failed to generate content: %v", err)
 	}

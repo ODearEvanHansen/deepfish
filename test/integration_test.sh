@@ -45,4 +45,9 @@ if ! grep -P "[\x{4e00}-\x{9fff}]" "$TEST_DIR/test1.txt"; then
     exit 1
 fi
 
+# All tests passed, clean up test files
 echo "All integration tests passed!"
+
+# Cleanup test files
+echo "Cleaning up test files..."
+rm -rf "$TEST_DIR"

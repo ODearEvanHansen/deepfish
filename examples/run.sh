@@ -7,10 +7,21 @@ set -e
 cd "$(dirname "$0")/.."
 go build -o deepfish ./cmd/deepfish
 
-# IMPORTANT: Replace "your-api-key" with your actual DeepSeek API key
-# You can get an API key from https://platform.deepseek.com/
-# DO NOT commit this script with your real API key
-export DEEPSEEK_API_KEY="your-api-key"
+# Load API key from .env file if it exists
+if [ -f ../.env ]; then
+    source ../.env
+elif [ -f ./.env ]; then
+    source ./.env
+fi
+
+# Check if API key is set
+if [ -z "$DEEPSEEK_API_KEY" ]; then
+    echo "Error: DEEPSEEK_API_KEY is not set."
+    echo "Please create a .env file in the project root with the following content:"
+    echo "DEEPSEEK_API_KEY=your-api-key"
+    echo "You can get an API key from https://platform.deepseek.com/"
+    exit 1
+fi
 
 # Alternatively, you can set the API key in your environment before running this script
 # export DEEPSEEK_API_KEY="your-api-key"

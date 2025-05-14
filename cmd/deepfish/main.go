@@ -53,40 +53,89 @@ func main() {
 	lines := strings.Split(content, "\n")
 	subject := "Generated Email" // Default subject if none found
 	
-	// Check the first few lines for a subject line
-	subjectPrefixes := []string{"subject:", "主题:", "标题:", "邮件主题:", "email subject:"}
+	// Check for subject line with various patterns
+	subjectPrefixes := []string{
+		"subject:", "主题:", "标题:", "邮件主题:", "email subject:", 
+		"subject：", "主题：", "标题：", "邮件主题：", "email subject：", // Chinese colon
+		"re:", "fw:", "fwd:", "回复:", "转发:",  // Common email prefixes
+		"【", "[", // Common subject delimiters in Chinese emails
+	}
 	
+	// First pass: Look for explicit subject markers
+	subjectFound := false
 	for i, line := range lines {
-		if i > 5 { // Only check the first 5 lines
+		if i > 10 { // Check more lines (10 instead of 5)
 			break
 		}
 		
-		lineLower := strings.ToLower(line)
+		lineLower := strings.ToLower(strings.TrimSpace(line))
+		if lineLower == "" {
+			continue // Skip empty lines
+		}
+		
 		for _, prefix := range subjectPrefixes {
-			if strings.HasPrefix(lineLower, prefix) {
+			if strings.HasPrefix(lineLower, strings.ToLower(prefix)) {
 				// Extract the subject text after the prefix
 				prefixLen := len(prefix)
-				actualPrefix := line[:prefixLen] // Get the actual case of the prefix
-				subject = strings.TrimSpace(strings.TrimPrefix(line, actualPrefix))
-				
-				// Remove the subject line from the content if it's a separate line
-				if i == 0 || i == 1 {
+				if len(line) >= prefixLen {
+					actualPrefix := line[:prefixLen] // Get the actual case of the prefix
+					subject = strings.TrimSpace(strings.TrimPrefix(line, actualPrefix))
+					
+					// Remove the subject line from the content
 					contentLines := strings.Split(content, "\n")
 					content = strings.Join(append(contentLines[:i], contentLines[i+1:]...), "\n")
+					subjectFound = true
+					break
 				}
-				
+			}
+		}
+		
+		// Check for patterns like "Subject: text" anywhere in the line
+		if !subjectFound {
+			for _, prefix := range subjectPrefixes {
+				prefixPattern := strings.ToLower(prefix)
+				if idx := strings.Index(lineLower, prefixPattern); idx >= 0 {
+					// Extract text after the prefix
+					startIdx := idx + len(prefixPattern)
+					if startIdx < len(line) {
+						subject = strings.TrimSpace(line[startIdx:])
+						// Remove the subject line from the content
+						contentLines := strings.Split(content, "\n")
+						content = strings.Join(append(contentLines[:i], contentLines[i+1:]...), "\n")
+						subjectFound = true
+						break
+					}
+				}
+			}
+		}
+		
+		if subjectFound {
+			break
+		}
+	}
+	
+	// Second pass: If no explicit subject found, use heuristics
+	if !subjectFound {
+		// If the first non-empty line is short, use it as subject
+		for i, line := range lines {
+			trimmedLine := strings.TrimSpace(line)
+			if trimmedLine != "" && len(trimmedLine) < 100 && !strings.Contains(trimmedLine, ":") {
+				subject = trimmedLine
+				// Remove the subject line from the content
+				contentLines := strings.Split(content, "\n")
+				content = strings.Join(append(contentLines[:i], contentLines[i+1:]...), "\n")
 				break
 			}
 		}
 	}
 	
-	// If no subject found and the first line is short, use it as subject
-	if subject == "Generated Email" && len(lines) > 0 && len(lines[0]) < 100 && !strings.Contains(lines[0], ":") {
-		subject = lines[0]
-		// Remove the subject line from the content
-		contentLines := strings.Split(content, "\n")
-		content = strings.Join(contentLines[1:], "\n")
+	// Clean up the subject
+	subject = strings.TrimSpace(subject)
+	// Remove common decorators like [], (), ""
+	for _, decorator := range []string{"[", "]", "(", ")", "\"", "【", "】", "《", "》"} {
+		subject = strings.ReplaceAll(subject, decorator, "")
 	}
+	subject = strings.TrimSpace(subject)
 
 	// Create email template
 	emailTemplate := &templates.EmailTemplate{

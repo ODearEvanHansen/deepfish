@@ -1,5 +1,7 @@
 # DeepFish
 
+> **⚠️ IMPORTANT DISCLAIMER**: This tool is provided for **educational and security testing purposes only**. The generated phishing emails should only be used in controlled environments with proper authorization. Unauthorized use of phishing emails may violate laws and regulations. Users are responsible for ensuring compliance with all applicable laws and regulations.
+
 DeepFish is an AI-powered fishing email generator written in Go. It uses DeepSeek's API to generate convincing phishing emails in Chinese.
 
 ## Features

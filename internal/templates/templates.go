@@ -17,6 +17,53 @@ type EmailTemplate struct {
 func (e *EmailTemplate) HTMLContent() template.HTML {
 	// Replace newlines with <br> tags for proper HTML rendering
 	htmlContent := strings.ReplaceAll(e.Content, "\n", "<br>")
+	
+	// Basic Markdown formatting
+	// Bold text
+	htmlContent = strings.ReplaceAll(htmlContent, "**", "<strong>")
+	
+	// Italic text
+	htmlContent = strings.ReplaceAll(htmlContent, "*", "<em>")
+	
+	// Links - simple regex-based replacement
+	// This is a simplified approach and might not handle all Markdown link formats
+	linkPattern := `\[([^\]]+)\]\(([^)]+)\)`
+	for {
+		startIdx := strings.Index(htmlContent, "[")
+		if startIdx == -1 {
+			break
+		}
+		
+		endParenIdx := strings.Index(htmlContent[startIdx:], ")")
+		if endParenIdx == -1 {
+			break
+		}
+		endParenIdx += startIdx
+		
+		linkText := ""
+		url := ""
+		
+		// Extract link text and URL
+		linkSegment := htmlContent[startIdx:endParenIdx+1]
+		bracketCloseIdx := strings.Index(linkSegment, "]")
+		if bracketCloseIdx != -1 {
+			linkText = linkSegment[1:bracketCloseIdx]
+			parenOpenIdx := strings.Index(linkSegment, "(")
+			if parenOpenIdx != -1 && parenOpenIdx > bracketCloseIdx {
+				url = linkSegment[parenOpenIdx+1:len(linkSegment)-1]
+			}
+		}
+		
+		if linkText != "" && url != "" {
+			// Replace the Markdown link with HTML link
+			htmlLink := "<a href=\"" + url + "\">" + linkText + "</a>"
+			htmlContent = htmlContent[:startIdx] + htmlLink + htmlContent[endParenIdx+1:]
+		} else {
+			// If we can't parse the link properly, just move past this occurrence
+			htmlContent = htmlContent[:startIdx] + "[" + htmlContent[startIdx+1:]
+		}
+	}
+	
 	return template.HTML(htmlContent)
 }
 

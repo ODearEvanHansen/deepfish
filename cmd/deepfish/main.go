@@ -49,13 +49,43 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Extract subject from content (assuming first line is the subject)
+	// Extract subject from content
 	lines := strings.Split(content, "\n")
-	subject := lines[0]
-	if strings.HasPrefix(strings.ToLower(subject), "subject:") {
-		subject = strings.TrimSpace(strings.TrimPrefix(subject, "Subject:"))
-	} else if strings.HasPrefix(strings.ToLower(subject), "主题:") {
-		subject = strings.TrimSpace(strings.TrimPrefix(subject, "主题:"))
+	subject := "Generated Email" // Default subject if none found
+	
+	// Check the first few lines for a subject line
+	subjectPrefixes := []string{"subject:", "主题:", "标题:", "邮件主题:", "email subject:"}
+	
+	for i, line := range lines {
+		if i > 5 { // Only check the first 5 lines
+			break
+		}
+		
+		lineLower := strings.ToLower(line)
+		for _, prefix := range subjectPrefixes {
+			if strings.HasPrefix(lineLower, prefix) {
+				// Extract the subject text after the prefix
+				prefixLen := len(prefix)
+				actualPrefix := line[:prefixLen] // Get the actual case of the prefix
+				subject = strings.TrimSpace(strings.TrimPrefix(line, actualPrefix))
+				
+				// Remove the subject line from the content if it's a separate line
+				if i == 0 || i == 1 {
+					contentLines := strings.Split(content, "\n")
+					content = strings.Join(append(contentLines[:i], contentLines[i+1:]...), "\n")
+				}
+				
+				break
+			}
+		}
+	}
+	
+	// If no subject found and the first line is short, use it as subject
+	if subject == "Generated Email" && len(lines) > 0 && len(lines[0]) < 100 && !strings.Contains(lines[0], ":") {
+		subject = lines[0]
+		// Remove the subject line from the content
+		contentLines := strings.Split(content, "\n")
+		content = strings.Join(contentLines[1:], "\n")
 	}
 
 	// Create email template

@@ -3,12 +3,21 @@ package templates
 import (
 	"bytes"
 	"html/template"
+	"strings"
 )
 
 // EmailTemplate represents a template for generating emails
 type EmailTemplate struct {
 	Subject string
 	Content string
+}
+
+// HTMLContent returns the content as template.HTML for safe rendering in HTML templates
+// This should only be used with content from trusted sources
+func (e *EmailTemplate) HTMLContent() template.HTML {
+	// Replace newlines with <br> tags for proper HTML rendering
+	htmlContent := strings.ReplaceAll(e.Content, "\n", "<br>")
+	return template.HTML(htmlContent)
 }
 
 // RenderHTML renders the email template as HTML
@@ -54,7 +63,7 @@ func (e *EmailTemplate) RenderHTML() (string, error) {
             <h2>{{.Subject}}</h2>
         </div>
         <div class="content">
-            {{.Content}}
+            {{.HTMLContent}}
         </div>
         <div class="footer">
             <p>此邮件由AI自动生成，仅用于演示目的。</p>

@@ -7,8 +7,13 @@ set -e
 cd "$(dirname "$0")/.."
 go build -o deepfish ./cmd/deepfish
 
-# Set the API key (replace with your actual key or use environment variable)
+# IMPORTANT: Replace "your-api-key" with your actual DeepSeek API key
+# You can get an API key from https://platform.deepseek.com/
+# DO NOT commit this script with your real API key
 export DEEPSEEK_API_KEY="your-api-key"
+
+# Alternatively, you can set the API key in your environment before running this script
+# export DEEPSEEK_API_KEY="your-api-key"
 
 # Example 1: Generate a simple phishing email
 echo "Example 1: Simple phishing email"

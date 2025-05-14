@@ -40,6 +40,18 @@ export DEEPSEEK_API_KEY="your-api-key"
 
 Never store your API key in the source code. Always use environment variables or a secure configuration management system.
 
+## Disclaimer
+
+This tool is provided for educational and testing purposes only. The generated phishing emails should only be used in controlled environments with proper authorization. Unauthorized use of phishing emails may violate laws and regulations. Users are responsible for ensuring compliance with all applicable laws and regulations.
+
+## Configuration Options
+
+You can configure the following options via environment variables:
+
+- `DEEPSEEK_API_KEY`: Your DeepSeek API key (required)
+- `DEEPSEEK_BASE_URL`: DeepSeek API base URL (default: https://api.deepseek.com/v1)
+- `DEEPSEEK_MODEL`: DeepSeek model to use (default: deepseek-chat)
+
 ## License
 
 This project is licensed under the Apache License 2.0 - see the LICENSE file for details.

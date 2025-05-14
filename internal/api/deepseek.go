@@ -47,10 +47,21 @@ type ChatCompletionResponse struct {
 	} `json:"usage"`
 }
 
+// ErrorResponse represents an error response from the API
+type ErrorResponse struct {
+	Error struct {
+		Message string `json:"message"`
+		Type    string `json:"type"`
+		Param   string `json:"param"`
+		Code    string `json:"code"`
+	} `json:"error"`
+}
+
 // DeepSeekClient is a client for the DeepSeek API
 type DeepSeekClient struct {
 	apiKey  string
 	baseURL string
+	model   string
 	client  *http.Client
 }
 
@@ -60,6 +71,7 @@ func NewDeepSeekClient() *DeepSeekClient {
 	return &DeepSeekClient{
 		apiKey:  cfg.DeepSeekAPIKey,
 		baseURL: cfg.DeepSeekBaseURL,
+		model:   cfg.DeepSeekModel,
 		client: &http.Client{
 			Timeout: 30 * time.Second,
 		},
@@ -84,7 +96,7 @@ func (c *DeepSeekClient) GenerateChineseEmail(prompt string) (string, error) {
 	}
 
 	reqBody := ChatCompletionRequest{
-		Model:       "deepseek-chat",
+		Model:       c.model,
 		Messages:    messages,
 		Temperature: 0.7,
 		MaxTokens:   2000,
@@ -115,6 +127,18 @@ func (c *DeepSeekClient) GenerateChineseEmail(prompt string) (string, error) {
 	}
 
 	if resp.StatusCode != http.StatusOK {
+		// Try to parse the error response
+		var errResp ErrorResponse
+		if err := json.Unmarshal(body, &errResp); err == nil && errResp.Error.Message != "" {
+			return "", fmt.Errorf("API request failed with status code %d: %s (type: %s, code: %s, param: %s)", 
+				resp.StatusCode, 
+				errResp.Error.Message,
+				errResp.Error.Type,
+				errResp.Error.Code,
+				errResp.Error.Param)
+		}
+		
+		// Fallback to raw response if error parsing fails
 		return "", fmt.Errorf("API request failed with status code %d: %s", resp.StatusCode, string(body))
 	}
 

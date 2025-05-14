@@ -9,6 +9,7 @@ import (
 type Config struct {
 	DeepSeekAPIKey string
 	DeepSeekBaseURL string
+	DeepSeekModel  string
 }
 
 var (
@@ -21,7 +22,8 @@ func GetConfig() *Config {
 	once.Do(func() {
 		instance = &Config{
 			DeepSeekAPIKey: getEnv("DEEPSEEK_API_KEY", ""),
-			DeepSeekBaseURL: getEnv("DEEPSEEK_BASE_URL", "https://api.deepseek.com"),
+			DeepSeekBaseURL: getEnv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1"),
+			DeepSeekModel:  getEnv("DEEPSEEK_MODEL", "deepseek-chat"),
 		}
 	})
 	return instance

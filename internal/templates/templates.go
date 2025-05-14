@@ -27,7 +27,6 @@ func (e *EmailTemplate) HTMLContent() template.HTML {
 	
 	// Links - simple regex-based replacement
 	// This is a simplified approach and might not handle all Markdown link formats
-	linkPattern := `\[([^\]]+)\]\(([^)]+)\)`
 	for {
 		startIdx := strings.Index(htmlContent, "[")
 		if startIdx == -1 {

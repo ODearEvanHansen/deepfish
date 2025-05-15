@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"os"
 	"sync"
 )
@@ -36,4 +37,27 @@ func getEnv(key, defaultValue string) string {
 		return defaultValue
 	}
 	return value
+}
+
+// PhishingPrompts holds the structured phishing email prompts
+type PhishingPrompts struct {
+	Prompts map[string]struct {
+		System string `json:"system"`
+		User   string `json:"user"`
+	} `json:"prompts"`
+}
+
+// LoadPhishingPrompts loads phishing prompts from a JSON file
+func LoadPhishingPrompts(path string) (*PhishingPrompts, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var prompts PhishingPrompts
+	if err := json.Unmarshal(data, &prompts); err != nil {
+		return nil, err
+	}
+
+	return &prompts, nil
 }

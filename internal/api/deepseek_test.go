@@ -30,10 +30,15 @@ func setupTestConfig(t *testing.T) string {
 }
 
 func TestMain(m *testing.M) {
-	// Setup test environment
-	os.Setenv("DEEPSEEK_API_KEY", "test_key")
+	// Configure test environment
+	os.Setenv("DEEPSEEK_API_KEY", "test_key_ci")
 	os.Setenv("PHISHING_PROMPTS_PATH", "testdata/phishing.json")
 	
+	// Start mock server in all environments
+	srv := startMockAPIServer()
+	defer srv.Close()
+	os.Setenv("DEEPSEEK_BASE_URL", srv.URL)
+
 	// Run tests
 	code := m.Run()
 	os.Exit(code)

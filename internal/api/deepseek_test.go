@@ -20,7 +20,23 @@ func setupTestConfig(t *testing.T) string {
 	if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
 		t.Fatalf("Failed to create test config: %v", err)
 	}
+	
+	// Verify file was created
+	if _, err := os.Stat(configPath); err != nil {
+		t.Fatalf("Test config file not found at %s: %v", configPath, err)
+	}
+	t.Logf("Created test config at: %s", configPath)
 	return configPath
+}
+
+func TestMain(m *testing.M) {
+	// Setup test environment
+	os.Setenv("DEEPSEEK_API_KEY", "test_key")
+	os.Setenv("PHISHING_PROMPTS_PATH", "testdata/phishing.json")
+	
+	// Run tests
+	code := m.Run()
+	os.Exit(code)
 }
 
 func TestDeepSeekClient_GenerateChineseEmail(t *testing.T) {

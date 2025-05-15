@@ -76,8 +76,9 @@ func TestDeepSeekClient_GenerateChineseEmail(t *testing.T) {
 	os.Setenv("DEEPSEEK_API_KEY", apiKey)
 	os.Setenv("PHISHING_PROMPTS_PATH", configPath)
 	
-	// Create a new client
+	// Create client with test config path
 	client := NewDeepSeekClient()
+	client.configPath = configPath
 
 	// Test generating content
 	prompt := "Generate a short test message in Chinese (less than 50 characters)"

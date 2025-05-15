@@ -1,9 +1,10 @@
 package api
 
 import (
-"net/http"
-"net/http/httptest"
-"os"
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"os"
 )
 
 func startMockAPIServer() *httptest.Server {

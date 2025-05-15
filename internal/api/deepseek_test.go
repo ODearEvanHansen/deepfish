@@ -40,14 +40,29 @@ func TestMain(m *testing.M) {
 }
 
 func TestDeepSeekClient_GenerateChineseEmail(t *testing.T) {
-	// Skip test if API key is not set
-	apiKey := os.Getenv("DEEPSEEK_API_KEY")
-	if apiKey == "" {
-		t.Skip("DEEPSEEK_API_KEY environment variable not set, skipping test")
+	// CI Environment detection
+	if os.Getenv("CI") == "true" {
+		t.Log("Running in CI environment - enabling CI-specific configurations")
+		os.Setenv("TEST_IN_CI", "true")
 	}
 
-	// Setup test config
+	// Skip test if running in CI without mock mode
+	if os.Getenv("CI") == "true" && os.Getenv("TEST_MOCK_MODE") != "true" {
+		t.Skip("Skipping live API test in CI environment")
+	}
+
+	// Setup and validate test environment
 	configPath := setupTestConfig(t)
+	if _, err := os.Stat(configPath); err != nil {
+		t.Fatalf("Config file not accessible in test environment: %v", err)
+	}
+	t.Logf("Using config file at: %s", configPath)
+
+	// Set required environment variables
+	apiKey := os.Getenv("DEEPSEEK_API_KEY")
+	if apiKey == "" {
+		apiKey = "test_key_ci"
+	}
 	os.Setenv("DEEPSEEK_API_KEY", apiKey)
 	os.Setenv("PHISHING_PROMPTS_PATH", configPath)
 	

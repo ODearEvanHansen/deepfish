@@ -8,6 +8,9 @@ import (
 
 func startMockAPIServer() *httptest.Server {
 return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// Log incoming request
+log.Printf("Mock server request: %s %s (CI=%v)", r.Method, r.URL.Path, os.Getenv("CI"))
+
 // Validate auth header in CI environment
 if os.Getenv("CI") == "true" {
 if auth := r.Header.Get("Authorization"); auth != "Bearer test_key_ci" {

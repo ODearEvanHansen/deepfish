@@ -3,6 +3,7 @@ package api
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -80,16 +81,17 @@ func TestDeepSeekClient_GenerateChineseEmail(t *testing.T) {
 	client := NewDeepSeekClient()
 	client.configPath = configPath
 
-	// Test generating content
+	// Test generating content (mock mode)
 	prompt := "Generate a short test message in Chinese (less than 50 characters)"
 	content, err := client.GenerateChineseEmail(prompt)
 	if err != nil {
 		t.Fatalf("Failed to generate content: %v", err)
 	}
 
-	// Verify content is not empty
-	if content == "" {
-		t.Error("Generated content is empty")
+	// Verify mock response pattern
+	expectedPrefix := "测试中文内容 - "
+	if !strings.HasPrefix(content, expectedPrefix) {
+		t.Errorf("Generated content does not match mock pattern")
 	}
 
 	// Verify content contains Chinese characters

@@ -45,10 +45,14 @@ func TestMain(m *testing.M) {
 }
 
 func TestDeepSeekClient_GenerateChineseEmail(t *testing.T) {
+	t.Log("=== Starting GenerateChineseEmail test ===")
+	defer t.Log("=== GenerateChineseEmail test completed ===")
+
 	// CI Environment detection
 	if os.Getenv("CI") == "true" {
 		t.Log("Running in CI environment - enabling CI-specific configurations")
 		os.Setenv("TEST_IN_CI", "true")
+		t.Logf("CI Environment Variables: DEEPSEEK_BASE_URL=%s", os.Getenv("DEEPSEEK_BASE_URL"))
 	}
 
 	// Skip test if running in CI without mock mode
@@ -58,6 +62,7 @@ func TestDeepSeekClient_GenerateChineseEmail(t *testing.T) {
 
 	// Setup and validate test environment
 	configPath := setupTestConfig(t)
+	t.Logf("Using config file: %s", configPath)
 	if _, err := os.Stat(configPath); err != nil {
 		t.Fatalf("Config file not accessible in test environment: %v", err)
 	}
